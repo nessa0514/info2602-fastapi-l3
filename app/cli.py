@@ -99,8 +99,28 @@ def list_user_categories(username:str):
 
 @cli.command()
 def assign_category_to_todo(username:str, todo_id:int, category_text:str):
-    # Task 5.6 code here. Remove the line with "pass" below once completed
-    pass
+    with get_session() as db: # Get a connection to the database
+        user = db.exec(select(User).where(User.username == username)).one_or_none()
+        if not user:
+            print("User doesn't exist")
+            return
+        
+        category = db.exec(select(Category).where(Category.text == category_text, Category.user_id==user.id)).one_or_none()
+        if not category:
+            category = Category(text=category_text, user_id=user.id)
+            db.add(category)
+            db.commit()
+            print("Category didn't exist for user, creating it")
+        
+        todo = db.exec(select(Todo).where(Todo.id == todo_id, Todo.user_id==user.id)).one_or_none()
+        if not todo:
+            print("Todo doesn't exist for user")
+            return
+        
+        todo.categories.append(category)
+        db.add(todo)
+        db.commit()
+        print("Added category to todo")
 
 if __name__ == "__main__":
     cli()
