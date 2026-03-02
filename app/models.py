@@ -10,9 +10,7 @@ class User(SQLModel, table=True):
     email:str = Field(index=True, unique=True)
     password:str
 
-    ## Task 3.1 code should go here (special care should go into the indentation)
-
-    ## End of task 3.1 code
+    todos: list['Todo'] = Relationship(back_populates="user")
 
     def set_password(self, plaintext_password):
         self.password = password_hash.hash(plaintext_password)
