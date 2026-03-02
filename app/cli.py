@@ -30,8 +30,15 @@ def initialize():
 
 @cli.command()
 def add_task(username:str, task:str):
-    # Task 4.1 code here. Remove the line with "pass" below once completed
-    pass
+    with get_session() as db:
+        user = db.exec(select(User).where(User.username == username)).one_or_none()
+        if not user:
+            print("User doesn't exist")
+            return
+        user.todos.append(Todo(text=task))
+        db.add(user)
+        db.commit()
+        print("Task added for user")
 
 @cli.command()
 def toggle_todo(todo_id:int, username:str):
