@@ -69,9 +69,23 @@ def list_todo_categories(todo_id:int, username:str):
             print(f"Categories: {todo.categories}")
 
 @cli.command()
-def create_category(username:str, cat_text:str):        
-    # Task 5.4 code here. Remove the line with "pass" below once completed
-    pass
+def create_category(username:str, cat_text:str):
+    with get_session() as db: # Get a connection to the database
+        user = db.exec(select(User).where(User.username == username)).one_or_none()
+        if not user:
+            print("User doesn't exist")
+            return
+
+        category = db.exec(select(Category).where(Category.text== cat_text, Category.user_id == user.id)).one_or_none()
+        if category:
+            print("Category exists! Skipping creation")
+            return
+        
+        category = Category(text=cat_text, user_id=user.id)
+        db.add(category)
+        db.commit()
+
+        print("Category added for user")
 
 @cli.command()
 def list_user_categories(username:str):
