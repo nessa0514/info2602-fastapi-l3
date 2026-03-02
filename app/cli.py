@@ -122,5 +122,47 @@ def assign_category_to_todo(username:str, todo_id:int, category_text:str):
         db.commit()
         print("Added category to todo")
 
+@cli.command() #exercise 1
+def list_todos():
+    """List all todos with their ID, text, username, and done status"""
+    with get_session() as db:
+        todos = db.exec(select(Todo)).all()
+        if not todos:
+            print("No todos found")
+            return
+        for todo in todos:
+            print(f"ID: {todo.id}, Text: '{todo.text}', User: {todo.user.username}, Done: {todo.done}")
+
+@cli.command() #exercise 2
+def delete_todo(todo_id: int):
+    """Delete a todo by its ID"""
+    with get_session() as db:
+        todo = db.exec(select(Todo).where(Todo.id == todo_id)).one_or_none()
+        if not todo:
+            print(f"Todo with ID {todo_id} does not exist")
+            return
+        db.delete(todo)
+        db.commit()
+        print(f"Todo ID {todo_id} deleted")
+
+@cli.command() # exercise 3
+def complete_user_todos(username: str):
+    """Mark all todos for a given user as done"""
+    with get_session() as db:
+        user = db.exec(select(User).where(User.username == username)).one_or_none()
+        if not user:
+            print(f"User '{username}' does not exist")
+            return
+        
+        if not user.todos:
+            print(f"User '{username}' has no todos")
+            return
+        
+        for todo in user.todos:
+            todo.done = True
+            db.add(todo)
+        db.commit()
+        print(f"All todos for '{username}' are now complete")
+
 if __name__ == "__main__":
     cli()
