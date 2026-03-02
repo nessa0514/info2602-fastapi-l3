@@ -26,6 +26,8 @@ class TodoCategory(SQLModel, table=True):
 class TodoCategory(SQLModel, table=True):
     todo_id: int|None = Field(primary_key=True, foreign_key='todo.id')
     category_id: int|None = Field(primary_key=True, foreign_key='category.id')
+
+    categories: list['Category'] = Relationship(back_populates=("todos"), link_model=TodoCategory)
     
 class Category(SQLModel, table=True):
     id: Optional[int] =  Field(default=None, primary_key=True)
