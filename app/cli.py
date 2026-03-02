@@ -42,8 +42,20 @@ def add_task(username:str, task:str):
 
 @cli.command()
 def toggle_todo(todo_id:int, username:str):
-    # Task 4.2 code here. Remove the line with "pass" below once completed
-    pass
+    with get_session() as db:
+        todo = db.exec(select(Todo).where(Todo.id == todo_id)).one_or_none()
+        if not todo:
+            print("This todo doesn't exist")
+            return
+        if todo.user.username != username:
+            print(f"This todo doesn't belong to {username}")
+            return
+
+        todo.toggle()
+        db.add(todo)
+        db.commit()
+
+        print(f"Todo item's done state set to {todo.done}")
 
 @cli.command()
 def list_todo_categories(todo_id:int, username:str):
