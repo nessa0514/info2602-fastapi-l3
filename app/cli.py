@@ -59,8 +59,14 @@ def toggle_todo(todo_id:int, username:str):
 
 @cli.command()
 def list_todo_categories(todo_id:int, username:str):
-    # Task 5.3 code here. Remove the line with "pass" below once completed
-    pass
+    with get_session() as db: # Get a connection to the database
+        todo = db.exec(select(Todo).where(Todo.id == todo_id)).one_or_none()
+        if not todo:
+            print("Todo doesn't exist")
+        elif not todo.user.username == username:
+            print("Todo doesn't belong to that user")
+        else:
+            print(f"Categories: {todo.categories}")
 
 @cli.command()
 def create_category(username:str, cat_text:str):        
