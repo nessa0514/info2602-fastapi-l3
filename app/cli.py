@@ -89,8 +89,13 @@ def create_category(username:str, cat_text:str):
 
 @cli.command()
 def list_user_categories(username:str):
-    # Task 5.5 code here. Remove the line with "pass" below once completed
-    pass
+    with get_session() as db: # Get a connection to the database
+        user = db.exec(select(User).where(User.username == username)).one_or_none()
+        if not user:
+            print("User doesn't exist")
+            return
+        categories = db.exec(select(Category).where(Category.user_id == user.id)).all()
+        print([category.text for category in categories])
 
 @cli.command()
 def assign_category_to_todo(username:str, todo_id:int, category_text:str):
